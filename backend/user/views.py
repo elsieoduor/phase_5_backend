@@ -63,7 +63,7 @@ class loginView(APIView):
     if user.role == 'Chief':
         return HttpResponseRedirect(reverse('chief_dashboard'))  # Use 'reverse' with the URL name
     elif user.role == 'User':
-        return HttpResponseRedirect(reverse('home'))  # Use 'reverse' with the URL name
+        return HttpResponseRedirect(reverse('donations'))  # Use 'reverse' with the URL name
     else:
         raise AuthenticationFailed('Invalid user role')
     # return response
@@ -85,7 +85,7 @@ class userView(APIView):
     if user.role == 'Chief':
         return HttpResponseRedirect(reverse('chief_dashboard'))
     elif user.role == 'User':
-        return HttpResponseRedirect(reverse('home')) 
+        return HttpResponseRedirect(reverse('donations')) 
     else:
         raise AuthenticationFailed('Invalid user role')
    
@@ -98,8 +98,8 @@ class logoutView(APIView):
     }
     return response
   
-# @login_required
-# @user_passes_test(is_user)
+@login_required
+@user_passes_test(is_user)
 @api_view(['GET', 'POST'])
 def reviews(request): 
     if request.method == 'GET':
@@ -114,8 +114,8 @@ def reviews(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @login_required
-# @user_passes_test(is_user)
+@login_required
+@user_passes_test(is_user)
 @api_view(['GET', 'POST'])
 def visit(request):
     if request.method == 'GET':
@@ -137,8 +137,8 @@ def visit(request):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
    
-# @login_required
-# @user_passes_test(is_user)
+@login_required
+@user_passes_test(is_user)
 @api_view(['GET', 'POST'])
 def children_orphanages(request):
     if request.method == 'GET':
@@ -153,8 +153,8 @@ def children_orphanages(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @login_required
-# @user_passes_test(is_user)
+@login_required
+@user_passes_test(is_user)
 @api_view(['GET','POST'])
 def donations(request):
     if request.method == 'GET':
@@ -182,7 +182,7 @@ def donations(request):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @login_required
+@login_required
 # @user_passes_test(is_chief)
 def orphanage_search(request):
     if 'query' in request.GET:
@@ -206,8 +206,15 @@ def orphanage_search(request):
 
     return render(request, 'default/children_homes_search.html', {'results': results})
 
-# @login_required
-# @user_passes_test(is_user)
+@login_required
+@user_passes_test(is_chief)
+
+#Admin MVP
+@login_required
+@user_passes_test(is_chief)
+def chief_dashboard(request):
+    return render(request, 'chief/dashboard.html')
+
 @api_view(['GET', 'PUT', 'DELETE'])
 def orphanage_detail(request, id):
     try:
@@ -228,15 +235,9 @@ def orphanage_detail(request, id):
         children_orphanage.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-#Admin MVP
-# @login_required
-@user_passes_test(is_chief)
-def chief_dashboard(request):
-    return render(request, 'chief/dashboard.html')
-
 #User CRUD
-# @login_required
-# @user_passes_test(is_chief)
+@login_required
+@user_passes_test(is_chief)
 @api_view(['GET', 'POST'])
 def users(request):
     if request.method == 'GET':
@@ -250,8 +251,8 @@ def users(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @login_required
-# @user_passes_test(is_chief)
+@login_required
+@user_passes_test(is_chief)
 @api_view(['GET', 'PUT', 'DELETE'])
 def user_details(request, id):
   try:
@@ -274,8 +275,8 @@ def user_details(request, id):
 
 
 #Analytics
-# @login_required
-# @user_passes_test(is_chief)
+@login_required
+@user_passes_test(is_chief)
 @api_view(['GET'])
 def most_visited_home(request):
     upcoming_visits = Visit.objects.filter(visit_date__gte=timezone.now())
@@ -291,8 +292,8 @@ def most_visited_home(request):
     else:
         return Response({'error': 'No most visited home found'}, status=status.HTTP_404_NOT_FOUND)
 
-# @login_required
-# @user_passes_test(is_chief)
+@login_required
+@user_passes_test(is_chief)
 @api_view(['GET'])
 def most_in_need_home(request):
     if request.method == 'GET':
