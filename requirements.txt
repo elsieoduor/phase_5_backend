@@ -1,0 +1,10 @@
+django
+djangorestframework
+django-cors-headers
+Pillow
+asgiref
+PyJWT
+pytz
+sqlparse
+typing_extensions
+gunicorn
